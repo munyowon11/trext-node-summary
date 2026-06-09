@@ -56,6 +56,15 @@ To review the sample output:
 docs/sample-output.md
 ```
 
+## Run sample summary
+
+```bash
+bash scripts/trext-node-summary.sh
+```
+
+This command reads the sample input file only.
+It does not connect to a live Slurm cluster.
+
 ## Public safety boundary
 
 This tool is intended to be read-only.
