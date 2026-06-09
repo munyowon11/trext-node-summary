@@ -1,4 +1,4 @@
-# Slurm Evidence Packet Sample
+# Slurm Evidence Packet Sample (non-diagnostic, sample-only)
 
 Data source: sample sinfo output  
 Mode: read-only  
