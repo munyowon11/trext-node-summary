@@ -56,6 +56,12 @@ To review the sample output:
 docs/sample-output.md
 ```
 
+To review the evidence packet sample:
+
+```text
+docs/evidence-packet-sample.md
+```
+
 ## Run sample summary
 
 ```bash
