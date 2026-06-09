@@ -26,8 +26,9 @@ This project does not:
 - modify Slurm configuration
 - drain, resume, reboot, or modify nodes
 - send commands to cluster infrastructure
-- connect to external services by default
-- process private operational data by default
+- connect to external services
+- upload or transmit cluster data
+- process private operational data
 - claim root cause, savings, reliability improvement, or production readiness
 
 ## Safety Boundary
@@ -42,7 +43,7 @@ Human review is required before taking any operational action.
 
 This repository currently provides sample input and sample output only.
 
-It does not connect to a live Slurm cluster by default.
+This sample-mode release does not connect to a live Slurm cluster.
 
 To review the sample input:
 
@@ -134,7 +135,7 @@ The one-page summary should include:
 Current limitations:
 
 - sample-data first
-- no live cluster integration by default
+- no live cluster integration (sample-mode release)
 - no root-cause analysis
 - no cost or performance claims
 - no autonomous operation
