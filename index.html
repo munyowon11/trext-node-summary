@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TREXT — Read-only Diagnostic Reports for GPU/HPC Operations</title>
+<style>
+  :root{--bg:#F2F4F6;--card:#FFF;--line:rgba(60,60,67,.10);--pri:#191F28;--sec:#4E5968;--ter:#8B95A1;--blue:#3182F6;--green:#22C55E;--orange:#F76F1F;--red:#F04452;--green-soft:#E6F7EE;--orange-soft:#FEF1E8;--red-soft:#FDECEE;--blue-soft:#E8F2FE;--r:14px;--shadow:0 1px 4px rgba(0,0,0,.04),0 0 0 1px rgba(60,60,67,.05);--sans:'Pretendard','-apple-system','SF Pro Text',system-ui,sans-serif;--mono:ui-monospace,'SF Mono','JetBrains Mono',monospace}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--pri);font-family:var(--sans);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
+
+  /* Nav */
+  .nav{position:sticky;top:0;background:rgba(255,255,255,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--line);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:10}
+  .nav-l{display:flex;align-items:center;gap:12px}
+  .nav-title{font-weight:700;font-size:16px;letter-spacing:-.4px}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--green-soft);color:var(--green)}
+  .badge::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.9}
+  .badge.demo{background:var(--blue-soft);color:var(--blue)}
+  .badge.fb{background:var(--orange-soft);color:var(--orange)}
+  .badge.gray{background:rgba(60,60,67,.07);color:var(--ter)}
+  .badge.gray::before{opacity:.5}
+  .nav-r{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ter)}
+  .nav-time{font-family:var(--mono)}
+
+  /* Layout */
+  .container{max-width:1240px;margin:0 auto;padding:18px}
+  .stack{display:flex;flex-direction:column;gap:16px}
+
+  /* Cards */
+  .card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:18px 20px}
+  .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap}
+  .card-title{font-size:15px;font-weight:700}
+  .card-meta{font-size:11px;color:var(--ter)}
+
+  /* Hero */
+  .hero-card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:28px 28px 24px}
+  .hero-eyebrow{font-size:11px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}
+  .hero-title{font-size:32px;font-weight:800;letter-spacing:-.8px;line-height:1.15;margin-bottom:10px}
+  .hero-sub{font-size:16px;color:var(--sec);margin-bottom:8px;font-weight:500}
+  .hero-desc{font-size:13px;color:var(--sec);max-width:700px;line-height:1.65;margin-bottom:20px}
+  .hero-actions{display:flex;gap:10px;flex-wrap:wrap}
+
+  /* Metric grid */
+  .hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  @media(max-width:900px){.hero-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.hero-grid{grid-template-columns:1fr}}
+  .metric{background:var(--card);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow)}
+  .m-label{font-size:11px;color:var(--ter);font-weight:600;text-transform:uppercase;margin-bottom:8px}
+  .m-value{font-size:22px;font-weight:700}
+  .m-value.mode{color:var(--blue);font-size:15px;font-weight:700}
+  .m-value.ok{color:var(--green);font-size:15px;font-weight:700}
+  .m-value.warn{color:var(--orange);font-size:15px;font-weight:700}
+  .m-sub{font-size:11px;color:var(--ter);margin-top:4px}
+
+  /* Buttons */
+  .btn{display:inline-flex;align-items:center;padding:9px 16px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;border:none;text-decoration:none;transition:opacity .15s}
+  .btn:hover{opacity:.82}
+  .btn-pri{background:var(--blue);color:#fff}
+  .btn-sec{background:transparent;color:var(--sec);border:1px solid var(--line)}
+  .btn-green{background:var(--green);color:#fff}
+
+  /* Hypothesis section */
+  .hypo-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .hypo-item{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:var(--bg);border-radius:10px;font-size:13px;color:var(--sec);line-height:1.6}
+  .hypo-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+
+  /* Concept proposal */
+  .proposal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:640px){.proposal-grid{grid-template-columns:1fr}}
+  .prop-card{border-radius:10px;padding:14px 16px}
+  .prop-card.input{background:var(--blue-soft);border:1px solid rgba(49,130,246,.14)}
+  .prop-card.output{background:var(--green-soft);border:1px solid rgba(34,197,94,.14)}
+  .prop-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+  .prop-card.input .prop-label{color:var(--blue)}
+  .prop-card.output .prop-label{color:var(--green)}
+  .prop-list{list-style:none;display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--sec)}
+  .prop-list li::before{content:'·';margin-right:6px;color:var(--ter)}
+  .prop-note{font-size:11px;color:var(--ter);margin-top:10px;padding-top:10px;border-top:1px solid rgba(60,60,67,.10)}
+
+  /* Safety boundary card */
+  .safety-card{background:var(--red-soft);border-radius:var(--r);padding:18px 20px;border:1px solid rgba(240,68,82,.18)}
+  .safety-title{font-size:12px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+  .boundary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  @media(max-width:560px){.boundary-grid{grid-template-columns:1fr}}
+  .boundary-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--sec)}
+  .boundary-item::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0;opacity:.7}
+
+  /* CTA primary */
+  .cta-primary{background:var(--blue-soft);border-radius:var(--r);padding:22px 24px;border:2px solid var(--blue)}
+  .cta-title{font-size:15px;font-weight:700;margin-bottom:8px}
+  .cta-desc{font-size:13px;color:var(--sec);margin-bottom:6px;line-height:1.6}
+  .cta-note{font-size:11px;color:var(--ter);margin-bottom:16px}
+  .cta-actions{display:flex;gap:10px;flex-wrap:wrap}
+
+  /* Feedback questions */
+  .q-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .q-item{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--sec);line-height:1.6}
+  .q-num{font-size:11px;font-weight:700;color:var(--blue);background:var(--blue-soft);width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+
+  /* Evidence status */
+  .status-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:640px){.status-grid{grid-template-columns:1fr}}
+  .status-card{border-radius:10px;padding:14px 16px}
+  .status-card.proven{background:var(--green-soft);border:1px solid rgba(34,197,94,.14)}
+  .status-card.not-yet{background:var(--red-soft);border:1px solid rgba(240,68,82,.14)}
+  .status-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+  .status-card.proven .status-label{color:var(--green)}
+  .status-card.not-yet .status-label{color:var(--red)}
+  .status-list{list-style:none;display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--sec)}
+  .status-list li::before{content:'·';margin-right:6px;color:var(--ter)}
+
+  /* Sample report link */
+  .rec-card{background:var(--blue-soft);border-radius:var(--r);padding:16px 18px;border:1px solid rgba(49,130,246,.12)}
+  .rec-title{font-size:12px;font-weight:700;color:var(--blue);text-transform:uppercase;margin-bottom:8px}
+
+  /* Footer */
+  .footer{padding:18px 0 26px;text-align:center;font-size:11px;color:var(--ter)}
+
+  @media(max-width:560px){
+    .nav-title{font-size:14px;letter-spacing:-.2px}
+    .nav .badge.fb{display:none}
+    .nav-r{display:none}
+    .hero-title{font-size:24px}
+    .hero-sub{font-size:14px}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-l">
+    <div class="nav-title">TREXT</div>
+    <span class="badge demo">Read-only</span>
+    <span class="badge fb">Customer Discovery</span>
+  </div>
+  <div class="nav-r">
+    <span>Early-stage prototype</span>
+    <span class="nav-time" id="nav-time">--:--:--</span>
+  </div>
+</nav>
+
+<div class="container stack">
+
+  <!-- Section 1: Hero -->
+  <div class="hero-card">
+    <div class="hero-eyebrow">Customer Discovery · Read-only Diagnostic Report Concept</div>
+    <div class="hero-title">TREXT</div>
+    <div class="hero-sub">Read-only diagnostic reports for GPU/HPC operations</div>
+    <p class="hero-desc">
+      TREXT is an early-stage customer discovery project exploring how operators and researchers
+      check, summarize, and explain incidents or performance issues across Slurm, GPU metrics,
+      logs, and monitoring data. This page is a concept artifact — not a finished product.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-pri" href="https://docs.google.com/forms/d/e/1FAIpQLScQCdHEH1QnvFZf_y9WCcr2J5u3JzRQGG1nta9rexnTGCXKeQ/viewform" target="_blank" rel="noopener noreferrer">국문 설문 참여하기</a>
+      <a class="btn btn-green" href="https://docs.google.com/forms/d/e/1FAIpQLSfiZmP860xbDHZVXaJaF01kaTK6j5sMhMQUU3HQ_bFN_9_ZLQ/viewform" target="_blank" rel="noopener noreferrer">Take the English Survey</a>
+      <a class="btn btn-sec" href="docs/sample-output.md" target="_blank" rel="noopener noreferrer">View Sample Report</a>
+    </div>
+  </div>
+
+  <!-- Quick status strip -->
+  <div class="hero-grid">
+    <div class="metric">
+      <div class="m-label">Mode</div>
+      <div class="m-value mode">Read-only Replay</div>
+      <div class="m-sub">No control path</div>
+    </div>
+    <div class="metric">
+      <div class="m-label">Live System Control</div>
+      <div class="m-value ok">None</div>
+      <div class="m-sub">No hardware write path</div>
+    </div>
+    <div class="metric">
+      <div class="m-label">Data Required</div>
+      <div class="m-value ok">Sample only</div>
+      <div class="m-sub">No production data upload</div>
+    </div>
+    <div class="metric">
+      <div class="m-label">Stage</div>
+      <div class="m-value warn">Early prototype</div>
+      <div class="m-sub">Concept / customer discovery</div>
+    </div>
+    <div class="metric">
+      <div class="m-label">Customer Signal</div>
+      <div class="m-value warn">In progress</div>
+      <div class="m-sub">Survey open — not yet received</div>
+    </div>
+    <div class="metric">
+      <div class="m-label">Human Review</div>
+      <div class="m-value ok">Required</div>
+      <div class="m-sub">Before any operational action</div>
+    </div>
+  </div>
+
+  <!-- Section 2: What problem are we exploring? -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">What problem are we exploring?</div>
+      <div class="card-meta">Hypothesis — not yet validated</div>
+    </div>
+    <ul class="hypo-list">
+      <li class="hypo-item">
+        <span class="hypo-icon">🔎</span>
+        <span>Relevant data may be scattered across Slurm, GPU metrics, logs, dashboards, and user context — making it difficult to see the full picture in one place.</span>
+      </li>
+      <li class="hypo-item">
+        <span class="hypo-icon">⏱</span>
+        <span>Connecting job status, node state, metric timelines, and log entries could take significant time when an incident occurs.</span>
+      </li>
+      <li class="hypo-item">
+        <span class="hypo-icon">📋</span>
+        <span>Timelines and uncertainty may be difficult to explain clearly to teammates, users, or reviewers without a structured summary.</span>
+      </li>
+      <li class="hypo-item">
+        <span class="hypo-icon">🛡</span>
+        <span>Operators may need a safer, read-only way to summarize evidence before taking action — especially in shared or production-adjacent environments.</span>
+      </li>
+    </ul>
+    <p style="font-size:12px;color:var(--ter);margin-top:14px">
+      These are hypotheses we are exploring, not confirmed problems. We are looking for operator and researcher feedback to test whether these assumptions are accurate.
+    </p>
+  </div>
+
+  <!-- Section 3: What TREXT currently proposes -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">What TREXT currently proposes</div>
+      <div class="card-meta">TREXT Ops Evidence Pack v0.1 concept · read-only · sample data only</div>
+    </div>
+    <div class="proposal-grid">
+      <div class="prop-card input">
+        <div class="prop-label">Input candidates</div>
+        <ul class="prop-list">
+          <li>Slurm job / queue / node status</li>
+          <li>GPU utilization / memory / temperature / power metrics</li>
+          <li>Error logs / system logs / application logs</li>
+          <li>Monitoring dashboard snapshots</li>
+          <li>Timeline context</li>
+          <li>User-provided issue description</li>
+        </ul>
+        <div class="prop-note">No production data upload required. Sample inputs only in current prototype.</div>
+      </div>
+      <div class="prop-card output">
+        <div class="prop-label">Output candidates</div>
+        <ul class="prop-list">
+          <li>Issue summary</li>
+          <li>Related job / node scope</li>
+          <li>Evidence timeline</li>
+          <li>Missing data / uncertainty list</li>
+          <li>Possible next checks</li>
+          <li>Human review checklist</li>
+          <li>Short explanation draft for users or teammates</li>
+        </ul>
+        <div class="prop-note">No root cause confirmed. No automated action. No savings estimate.</div>
+      </div>
+    </div>
+    <div class="rec-card" style="margin-top:14px">
+      <div class="rec-title">Current implementation scope</div>
+      <p style="font-size:13px;color:var(--sec)">
+        The current prototype reads a local sample <code style="font-family:var(--mono);font-size:11px;background:rgba(49,130,246,.10);padding:2px 6px;border-radius:4px">sinfo</code> text file and generates a read-only node status summary. No live Slurm connection. No GPU metrics pipeline yet. See the <a href="docs/sample-output.md" style="color:var(--blue)">sample output</a> and <a href="docs/evidence-packet-sample.md" style="color:var(--blue)">evidence packet sample</a>.
+      </p>
+    </div>
+  </div>
+
+  <!-- Section 4: Safety boundaries -->
+  <div class="safety-card">
+    <div class="safety-title">Safety boundaries — always active</div>
+    <div class="boundary-grid">
+      <div class="boundary-item">Read-only only — no write path</div>
+      <div class="boundary-item">No live system control</div>
+      <div class="boundary-item">No credentials requested</div>
+      <div class="boundary-item">No production data upload required</div>
+      <div class="boundary-item">No external data transfer without approval</div>
+      <div class="boundary-item">Human review required before any action</div>
+      <div class="boundary-item">Missing data and uncertainty must be shown</div>
+      <div class="boundary-item">Not a production-ready system</div>
+      <div class="boundary-item">No root-cause confirmation</div>
+      <div class="boundary-item">No savings guarantee</div>
+      <div class="boundary-item">No autonomous operation</div>
+      <div class="boundary-item">No Slurm configuration changes</div>
+    </div>
+  </div>
+
+  <!-- Section 5: Survey CTA (primary) -->
+  <!-- cta-primary-begin -->
+  <section class="cta-primary" data-cta="primary">
+    <div class="cta-title">참여해 주세요 — 3분 설문</div>
+    <p class="cta-desc">GPU/HPC 운영자·연구자의 실제 워크플로우 피드백이 TREXT 컨셉의 방향을 결정합니다. 언어를 선택해 설문에 참여해 주세요.</p>
+    <p class="cta-note">예상 시간: 약 3분 · 생산 데이터, 시설 자격증명, 라이브 시스템 접근 요청 없음.</p>
+    <div class="cta-actions">
+      <a class="btn btn-pri" href="https://docs.google.com/forms/d/e/1FAIpQLScQCdHEH1QnvFZf_y9WCcr2J5u3JzRQGG1nta9rexnTGCXKeQ/viewform" target="_blank" rel="noopener noreferrer">국문 설문 참여하기</a>
+      <a class="btn btn-green" href="https://docs.google.com/forms/d/e/1FAIpQLSfiZmP860xbDHZVXaJaF01kaTK6j5sMhMQUU3HQ_bFN_9_ZLQ/viewform" target="_blank" rel="noopener noreferrer">Take the English Survey</a>
+    </div>
+  </section>
+  <!-- cta-primary-end -->
+
+  <!-- Section 6: What feedback we are looking for -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">What feedback we are looking for</div>
+      <div class="card-meta">Customer discovery questions</div>
+    </div>
+    <ol class="q-list">
+      <li class="q-item"><span class="q-num">1</span><span>What problems do you experience when checking GPU/HPC incidents or performance issues?</span></li>
+      <li class="q-item"><span class="q-num">2</span><span>What data would be useful to see on one screen during an incident?</span></li>
+      <li class="q-item"><span class="q-num">3</span><span>What makes your current data-checking workflows inconvenient or slow?</span></li>
+      <li class="q-item"><span class="q-num">4</span><span>What boundaries are required for a read-only diagnostic tool to be safe to use in your environment?</span></li>
+      <li class="q-item"><span class="q-num">5</span><span>Would a sample diagnostic report — showing observed facts, missing evidence, and human review questions — be worth reviewing with your team?</span></li>
+    </ol>
+  </div>
+
+  <!-- Section 7: Evidence status -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">Evidence status</div>
+      <div class="card-meta">Current stage — customer discovery in progress</div>
+    </div>
+    <div class="status-grid">
+      <div class="status-card proven">
+        <div class="status-label">Current status</div>
+        <ul class="status-list">
+          <li>Early-stage prototype / concept</li>
+          <li>Read-only and replay-first direction</li>
+          <li>Sample sinfo parser implemented</li>
+          <li>Evidence packet sample prepared</li>
+          <li>Survey forms available (KR + EN)</li>
+          <li>Customer discovery in progress</li>
+        </ul>
+      </div>
+      <div class="status-card not-yet">
+        <div class="status-label">Not yet proven</div>
+        <ul class="status-list">
+          <li>No customer validation yet</li>
+          <li>No pilot completed</li>
+          <li>No production deployment</li>
+          <li>No GPU metrics pipeline tested</li>
+          <li>No live Slurm integration</li>
+          <li>No guaranteed savings of any kind</li>
+          <li>No autonomous control</li>
+          <li>No market validation / PMF</li>
+        </ul>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--ter);margin-top:14px">
+      No Evidence = No Claim · No Customer = No Validation · No Pilot = No PMF · No Revenue = No Business Proof
+    </p>
+  </div>
+
+  <div class="footer">
+    TREXT · read-only diagnostic report concept · GPU/HPC operations · sample data only · human review required · customer discovery in progress
+  </div>
+
+</div>
+
+<script>
+"use strict";
+function tick(){
+  var el=document.getElementById('nav-time');
+  if(el){el.textContent=new Date().toLocaleTimeString('en-GB',{hour12:false});}
+}
+tick();
+setInterval(tick,1000);
+</script>
+</body>
+</html>
