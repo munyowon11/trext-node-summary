@@ -99,6 +99,26 @@ bash scripts/trext-node-summary.sh
 This command reads the sample input file only.
 It does not connect to a live Slurm cluster.
 
+## Local TREXT CLI skeleton
+
+The GitHub benchmark material is reused only as implementation benchmarking, not as customer evidence.
+
+```bash
+bash scripts/trext.sh replay
+bash scripts/trext.sh report slurm-node-reasons
+bash scripts/trext.sh evidence-index
+bash scripts/trext.sh check-boundary
+```
+
+These commands use repository fixtures and local generated outputs only.
+
+Related implementation benchmark notes:
+
+- [`docs/developer-tooling-benchmark-ledger.md`](docs/developer-tooling-benchmark-ledger.md)
+- [`docs/implementation-benchmark-matrix.md`](docs/implementation-benchmark-matrix.md)
+- [`docs/ux-patterns-from-github-benchmark.md`](docs/ux-patterns-from-github-benchmark.md)
+- [`docs/github-benchmark-risk-register.md`](docs/github-benchmark-risk-register.md)
+
 ## Public safety boundary
 
 This tool is intended to be read-only.
