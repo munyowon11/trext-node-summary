@@ -140,6 +140,24 @@ Current limitations:
 - no cost or performance claims
 - no autonomous operation
 
+## Evidence provenance gate
+
+Before any external-use, business-use, or broader public-facing change is
+merged, this repository applies a lightweight evidence provenance gate.
+
+In short: real-world values (benchmarks, fees, market figures, operational or
+performance claims) may only be used when backed by source evidence. When
+source evidence is insufficient, values must be labeled `sample`, `fixture`,
+`assumed`, `placeholder`, `synthetic`, or `unsupported_claim`, and must not be
+presented as business facts.
+
+These controls reduce risk. They do not prove security, market validation,
+production readiness, customer validation, or operational improvement.
+
+See [`docs/evidence_provenance_gate.md`](docs/evidence_provenance_gate.md) for
+the full rule, block-merge conditions, the artifact revalidation rule, and the
+pre-merge checklist.
+
 ## Status
 
 Early read-only prototype.
