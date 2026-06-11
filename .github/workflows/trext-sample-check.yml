@@ -25,3 +25,11 @@ jobs:
 
       - name: Run boundary check
         run: bash scripts/trext.sh check-boundary
+
+      - name: Upload generated sample reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: trext-generated-sample-reports
+          path: reports/generated/
+          if-no-files-found: error
+          retention-days: 7
