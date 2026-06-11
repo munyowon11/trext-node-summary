@@ -16,7 +16,9 @@
 
 `TREXT sample check` run #1 was triggered by push on `main` at commit `bf420f5` and completed with status `Success` in 10 seconds.
 
-This confirms the repository sample commands ran successfully in GitHub Actions for the sample-only workflow. It does not validate production HPC data, customer demand, operational outcomes, savings, reliability improvement, or final diagnosis.
+`TREXT sample check` run #7 was triggered by push on `main` at commit `35830e2` and completed with status `Success` in 7 seconds, producing 1 artifact.
+
+This confirms the repository sample commands ran successfully in GitHub Actions for the sample-only workflow and that generated sample reports are being uploaded as a CI artifact. It does not validate production HPC data, customer demand, operational outcomes, savings, reliability improvement, or final diagnosis.
 
 ## Commands covered by CI
 
@@ -47,8 +49,8 @@ Artifact boundary:
 
 ## Remaining review
 
-1. Confirm the artifact appears on the next `TREXT sample check` run.
-2. Download and review the artifact contents before sharing.
+1. Download and review the artifact contents before sharing.
+2. Confirm the artifact contains only generated sample reports and the evidence index.
 3. Keep generated samples synthetic.
 4. Keep GitHub benchmark material separate from customer-signal material.
 5. Use direct operator interviews for customer-need updates.
