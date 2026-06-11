@@ -9,6 +9,13 @@ This register keeps GitHub popular-repository material separate from TREXT custo
 | GH-R3 | Adding platform complexity too early. | Keep reports as local text and Markdown files. | Active |
 | GH-R4 | Using broad AI wording in public examples. | Prefer evidence report, sample fixture, and human review wording. | Active |
 | GH-R5 | Mixing benchmark material with customer-signal ledger. | Keep customer-need LR at 1.0 for this corpus. | Active |
+| GH-R6 | GitHub Actions runtime warning: Node.js 20 actions are deprecated. | Treat as a maintenance warning, not a sample-check failure. Recheck action versions if warnings become failures. | Watch |
+
+## CI note
+
+`TREXT sample check` run #1 completed with status `Success` on `main` at commit `bf420f5`. One GitHub Actions annotation warned that Node.js 20 actions are deprecated.
+
+This warning does not change the sample-only CI result, but it should remain tracked as a maintenance risk.
 
 ## Allowed use
 
