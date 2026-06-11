@@ -10,6 +10,7 @@
 - Risk register added.
 - README linked the new workflow.
 - GitHub Actions workflow `TREXT sample check` added.
+- CI artifact upload for `reports/generated/` added.
 
 ## CI status
 
@@ -26,10 +27,29 @@ bash scripts/trext.sh evidence-index
 bash scripts/trext.sh check-boundary
 ```
 
+## CI artifact
+
+The workflow uploads `reports/generated/` as a short-retention artifact named `trext-generated-sample-reports`.
+
+Artifact purpose:
+
+- help reviewers inspect sample-only generated reports;
+- avoid committing generated files before human review;
+- keep generated outputs separate from customer evidence.
+
+Artifact boundary:
+
+- sample-only;
+- generated from repository fixtures;
+- not production data;
+- not customer validation;
+- not operational proof.
+
 ## Remaining review
 
-1. Review files generated under `reports/generated/` locally before committing any generated samples.
-2. Keep generated samples synthetic.
-3. Keep GitHub benchmark material separate from customer-signal material.
-4. Use direct operator interviews for customer-need updates.
-5. Track GitHub Actions runtime warnings in the risk register.
+1. Confirm the artifact appears on the next `TREXT sample check` run.
+2. Download and review the artifact contents before sharing.
+3. Keep generated samples synthetic.
+4. Keep GitHub benchmark material separate from customer-signal material.
+5. Use direct operator interviews for customer-need updates.
+6. Track GitHub Actions runtime warnings in the risk register.
