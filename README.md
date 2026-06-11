@@ -1,4 +1,4 @@
-# trext-node-summary
+# trext
 
 Read-only Slurm node status summary.
 
